@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ular Tangga Tekanan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Poppins:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#081b30;
+    --navy-mid:#0f3358;
+    --navy-soft:#164a7a;
+    --teal:#1fae9c;
+    --teal-dark:#0f7d70;
+    --brass:#e8a24a;
+    --brass-dark:#c17f2b;
+    --danger:#e0505f;
+    --danger-dark:#a8303d;
+    --cream:#fbf3e2;
+    --ink:#0a1e33;
+    --card-shadow: 0 20px 40px -10px rgba(4,16,32,.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    font-family:'Poppins',sans-serif;
+    color:var(--cream);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(31,174,156,.25), transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, rgba(232,162,74,.18), transparent 55%),
+      linear-gradient(180deg,var(--navy-deep) 0%, #071427 60%, #050d1a 100%);
+    overflow-x:hidden;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:20px 18px 60px;}
+
+  /* ---------- Header / Signature gauge+snake logo ---------- */
+  header.top{display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:6px;text-align:center;}
+  .logo-wrap{width:78px;height:78px;flex:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));}
+  .needle{transform-origin:60px 62px;animation:sway 3.2s ease-in-out infinite;}
+  @keyframes sway{0%,100%{transform:rotate(-18deg);}50%{transform:rotate(24deg);}}
+  h1.title{
+    font-family:'Baloo 2',sans-serif;font-weight:800;
+    font-size:clamp(28px,5vw,44px);
+    margin:0;
+    letter-spacing:.5px;
+    background:linear-gradient(180deg,#fff, #bfe9e2 60%, var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 2px 0 rgba(0,0,0,.15);
+  }
+  p.subtitle{margin:2px 0 0;color:#b9d3e6;font-size:14px;letter-spacing:.4px;}
+  .badgebar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0 22px;}
+  .badge{
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.5px;
+    padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);color:#cfe6f0;
+  }
+
+  /* ---------- Instructions ---------- */
+  .rules{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;padding:18px 20px;margin:0 auto 24px;max-width:900px;
+  }
+  .rules summary{cursor:pointer;font-family:'Baloo 2';font-weight:700;font-size:18px;color:var(--brass);list-style:none;display:flex;align-items:center;gap:8px;}
+  .rules summary::-webkit-details-marker{display:none;}
+  .rules summary:before{content:"▸";display:inline-block;transition:transform .2s;}
+  .rules[open] summary:before{transform:rotate(90deg);}
+  .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:14px;}
+  .rule-card{background:rgba(8,20,36,.55);border-radius:14px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);}
+  .rule-card b{color:#fff;display:block;margin-bottom:4px;font-family:'Baloo 2';font-size:15px;}
+  .rule-card span.tag{display:inline-block;font-size:11px;font-family:'Space Mono';padding:2px 8px;border-radius:999px;margin-bottom:6px;}
+  .tag.tangga{background:rgba(232,162,74,.2);color:var(--brass);border:1px solid rgba(232,162,74,.5);}
+  .tag.ular{background:rgba(224,80,95,.2);color:#ff9aa4;border:1px solid rgba(224,80,95,.5);}
+  .tag.pos{background:rgba(31,174,156,.2);color:#7fe6d6;border:1px solid rgba(31,174,156,.5);}
+  .rule-card p{margin:0;font-size:13px;line-height:1.5;color:#cfe1ee;}
+
+  /* ---------- Setup screen ---------- */
+  #setup{max-width:640px;margin:0 auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:26px 26px 30px;}
+  #setup h2{font-family:'Baloo 2';margin:0 0 4px;font-size:22px;color:#fff;}
+  #setup .hint{margin:0 0 18px;color:#a9c6d8;font-size:13px;}
+  .team-count{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .team-count button{
+    font-family:'Space Mono';border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;
+    padding:8px 0;border-radius:10px;cursor:pointer;font-size:14px;width:44px;transition:.15s;
+  }
+  .team-count button.active{background:var(--teal);border-color:var(--teal);color:#03211d;font-weight:700;}
+  .team-inputs{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .team-row{display:flex;align-items:center;gap:10px;}
+  .swatch{width:28px;height:28px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.15) inset;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .team-row input{
+    flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.06);color:#fff;font-family:'Poppins';font-size:14px;
+  }
+  .team-row input:focus{outline:2px solid var(--teal);}
+  #startBtn{
+    width:100%;padding:14px;border:none;border-radius:14px;cursor:pointer;
+    font-family:'Baloo 2';font-weight:700;font-size:17px;letter-spacing:.3px;
+    background:linear-gradient(180deg,var(--teal),var(--teal-dark));color:#03211d;
+    box-shadow:0 10px 20px -6px rgba(31,174,156,.55);
+    transition:transform .12s ease;
+  }
+  #startBtn:hover{transform:translateY(-2px);}
+  #startBtn:active{transform:translateY(0);}
+
+  /* ---------- Game layout ---------- */
+  #game{display:none;gap:22px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
+  .board-col{flex:1 1 560px;max-width:640px;}
+  .side-col{flex:1 1 300px;max-width:340px;display:flex;flex-direction:column;gap:16px;}
+
+  .board-wrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,.02) 0 2px, transparent 2px 40px),
+      linear-gradient(160deg,#0c2d4d,#0a2038 55%, #071627);
+    border:3px solid rgba(232,162,74,.35);
+    box-shadow:var(--card-shadow);
+  }
+  .board-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);}
+  .cell{
+    position:relative;border:1px solid rgba(255,255,255,.06);
+    display:flex;align-items:flex-start;justify-content:flex-start;
+    font-family:'Space Mono';font-size:9px;color:rgba(255,255,255,.45);
+    padding:2px 4px;
+  }
+  .cell .num{position:relative;z-index:2;}
+  .cell .icon{position:absolute;right:2px;bottom:1px;font-size:14px;z-index:2;}
+  .cell.ladder-bottom{background:rgba(232,162,74,.16);}
+  .cell.snake-head{background:rgba(224,80,95,.16);}
+  .cell.checkpoint{background:rgba(31,174,156,.16);}
+  .cell.tile-100{background:rgba(255,215,120,.28);}
+  svg.overlay{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+  .tokens-layer{position:absolute;inset:0;z-index:5;pointer-events:none;}
+  .token{
+    position:absolute;width:9.5%;aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;
+    font-size:23px;line-height:1;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.7));
+    transition:left .5s cubic-bezier(.3,.9,.4,1), top .5s cubic-bezier(.3,.9,.4,1);
+    transform:translate(-50%,-50%);
+  }
+
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px 18px;}
+  .panel h3{font-family:'Baloo 2';margin:0 0 10px;font-size:15px;color:var(--brass);letter-spacing:.3px;}
+
+  .turn-chip{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .turn-dot{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 0 0 4px rgba(255,255,255,.08);}
+  .turn-chip b{font-family:'Baloo 2';font-size:17px;color:#fff;}
+
+  .dice-zone{display:flex;flex-direction:column;align-items:center;gap:12px;padding:6px 0 4px;}
+  .die{
+    width:64px;height:64px;border-radius:16px;background:linear-gradient(160deg,#fff,#dfe9ee);
+    display:flex;align-items:center;justify-content:center;font-family:'Space Mono';font-weight:700;
+    font-size:28px;color:var(--ink);box-shadow:0 10px 18px -6px rgba(0,0,0,.6), inset 0 -3px 0 rgba(0,0,0,.1);
+  }
+  .die.rolling{animation:shake .12s linear infinite;}
+  @keyframes shake{0%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}100%{transform:rotate(-6deg);}}
+  #rollBtn{
+    padding:11px 22px;border:none;border-radius:12px;cursor:pointer;
+    font-family:'Baloo 2';font-weight:700;font-size:15px;color:#3a1a06;
+    background:linear-gradient(180deg,var(--brass),var(--brass-dark));
+    box-shadow:0 8px 16px -6px rgba(232,162,74,.6);
+  }
+  #rollBtn:disabled{opacity:.45;cursor:not-allowed;}
+  .roll-note{font-size:11.5px;color:#9fc3d6;text-align:center;min-height:14px;}
+
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cfe1ee;margin-bottom:6px;}
+  .legend-item .ic{width:20px;text-align:center;}
+
+  .leader-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.1);}
+  .leader-row:last-child{border-bottom:none;}
+  .leader-row .dot{width:12px;height:12px;border-radius:50%;flex:none;}
+  .leader-row .name{flex:1;color:#fff;font-weight:600;}
+  .leader-row .pos{font-family:'Space Mono';color:var(--brass);}
+  .leader-row .stat{font-family:'Space Mono';font-size:11px;color:#9fc3d6;}
+
+  #log{max-height:150px;overflow-y:auto;display:flex;flex-direction:column-reverse;gap:6px;font-size:12.5px;color:#c7dbe8;padding-right:4px;}
+  #log::-webkit-scrollbar{width:6px;}
+  #log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px;}
+  #log div{padding:6px 8px;background:rgba(255,255,255,.04);border-radius:8px;border-left:3px solid var(--teal);}
+
+  /* ---------- Card modal ---------- */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(4,10,20,.72);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
+  }
+  .modal-backdrop.show{display:flex;}
+  .card-modal{
+    width:100%;max-width:460px;border-radius:22px;padding:26px 24px 22px;position:relative;
+    background:linear-gradient(165deg,#fffaf0,#f3e6cd);
+    color:var(--ink);box-shadow:0 30px 60px -12px rgba(0,0,0,.6);
+    border:6px solid var(--brass);
+    animation:cardIn .35s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .card-modal.ular{border-color:var(--danger);}
+  .card-modal.pos{border-color:var(--teal);}
+  @keyframes cardIn{from{transform:scale(.6) rotate(-4deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+  .card-cat{
+    display:inline-block;font-family:'Space Mono';font-size:11.5px;letter-spacing:.5px;
+    padding:5px 12px;border-radius:999px;margin-bottom:12px;color:#fff;
+  }
+  .card-cat.tangga{background:var(--brass-dark);}
+  .card-cat.ular{background:var(--danger-dark);}
+  .card-cat.pos{background:var(--teal-dark);}
+  .card-modal h4{font-family:'Baloo 2';font-size:19px;margin:0 0 16px;line-height:1.4;}
+  .options{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+  .opt{
+    text-align:left;padding:11px 14px;border-radius:12px;border:2px solid rgba(10,30,50,.15);
+    background:#fff;cursor:pointer;font-family:'Poppins';font-size:13.5px;color:var(--ink);
+    transition:.12s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--teal);transform:translateX(2px);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{background:rgba(31,174,156,.18);border-color:var(--teal-dark);font-weight:600;}
+  .opt.wrong{background:rgba(224,80,95,.18);border-color:var(--danger-dark);}
+  .feedback{font-size:13px;line-height:1.5;padding:12px 14px;border-radius:12px;background:rgba(10,30,50,.06);margin-bottom:14px;display:none;}
+  .feedback.show{display:block;}
+  .feedback b{display:block;margin-bottom:4px;font-family:'Baloo 2';}
+  #continueBtn{
+    display:none;width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;
+    font-family:'Baloo 2';font-weight:700;font-size:15px;color:#fff;
+    background:linear-gradient(180deg,var(--navy-soft),var(--navy-mid));
+  }
+
+  /* ---------- Winner modal ---------- */
+  .win-modal{max-width:420px;text-align:center;}
+  .win-modal .emoji{font-size:54px;margin-bottom:6px;}
+  .win-modal h3{font-family:'Baloo 2';font-size:26px;margin:0 0 6px;color:var(--ink);}
+  .win-modal p{color:#3a4a5c;margin:0 0 18px;font-size:14px;}
+  #playAgainBtn{
+    padding:12px 24px;border:none;border-radius:12px;cursor:pointer;font-family:'Baloo 2';
+    font-weight:700;font-size:15px;color:#03211d;background:linear-gradient(180deg,var(--teal),var(--teal-dark));
+  }
+
+  @media (max-width:720px){
+    .board-col,.side-col{flex:1 1 100%;max-width:100%;}
+    .cell{font-size:7.5px;}
+    .cell .icon{font-size:11px;}
+  }
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:linear-gradient(135deg,var(--brass),var(--brass-dark));
+    color:#3a1a06;font-family:'Baloo 2';font-weight:700;font-size:13.5px;
+    padding:12px 20px;border-radius:14px;box-shadow:0 14px 28px -8px rgba(0,0,0,.6);
+    opacity:0;transition:opacity .3s ease, transform .3s ease;
+    z-index:60;max-width:90vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 120 124" width="78" height="78">
+        <defs>
+          <linearGradient id="gaugeBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#123a5c"/>
+            <stop offset="1" stop-color="#081b30"/>
+          </linearGradient>
+          <linearGradient id="snakeBody" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2fd1a8"/>
+            <stop offset="1" stop-color="#0f7d70"/>
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="62" r="46" fill="url(#gaugeBody)" stroke="#e8a24a" stroke-width="4"/>
+        <circle cx="60" cy="62" r="38" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="4 6"/>
+        <text x="60" y="30" text-anchor="middle" fill="#e8a24a" font-size="9" font-family="Space Mono">LOW</text>
+        <text x="60" y="100" text-anchor="middle" fill="#e0505f" font-size="9" font-family="Space Mono">HIGH</text>
+        <path d="M 60 62 L 78 30" stroke="#fbf3e2" stroke-width="4" stroke-linecap="round" class="needle"/>
+        <circle cx="60" cy="62" r="6" fill="#fbf3e2"/>
+        <path d="M14 96 C 30 78, 20 60, 38 52 C 54 45, 46 28, 62 22 C 74 18, 80 10, 92 12"
+              fill="none" stroke="url(#snakeBody)" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="92" cy="12" r="6.5" fill="#2fd1a8"/>
+        <circle cx="94.5" cy="9.5" r="1.3" fill="#0a1e33"/>
+      </svg>
+    </div>
+    <div>
+      <h1 class="title">ULAR TANGGA TEKANAN</h1>
+      <p class="subtitle">Papan petualangan IPA · Materi Tekanan Zat · Kelas 9 SMP</p>
+    </div>
+  </header>
+
+  <div class="badgebar">
+    <span class="badge">🎲 2–10 KELOMPOK</span>
+    <span class="badge">🎴 KARTU TANTANGAN</span>
+    <span class="badge">📐 TEKANAN ZAT PADAT · HIDROSTATIS · PASCAL · ARCHIMEDES</span>
+  </div>
+
+  <details class="rules" open>
+    <summary>Cara bermain</summary>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <span class="tag tangga">TANGGA</span>
+        <b>Kartu Tangga Tekanan</b>
+        <p>Bidak berhenti di kaki tangga? Buka <b>Kartu Tangga Tekanan</b> dulu. Jawaban <b>benar</b> = naik ke ujung tangga. Jawaban <b>salah</b> = tetap di petak itu.</p>
+      </div>
+      <div class="rule-card">
+        <span class="tag ular">ULAR</span>
+        <b>Kartu Ular Tekanan</b>
+        <p>Bidak berhenti di kepala ular? Buka <b>Kartu Ular Tekanan</b> dulu. Jawaban <b>benar</b> = selamat, tidak turun. Jawaban <b>salah</b> = meluncur turun ke ekor ular.</p>
+      </div>
+      <div class="rule-card">
+        <span class="tag pos">POS</span>
+        <b>Kartu Pos Kejutan</b>
+        <p>Petak bertanda 🎴 kadang berupa <b>kuis</b> pilihan ganda, kadang berupa <b>tantangan Jelaskan!/Percobaan Kilat/Studi Kasus</b> yang harus didiskusikan lisan. Berhasil = bonus maju 3 petak. Belum berhasil = mundur 2 petak.</p>
+      </div>
+      <div class="rule-card">
+        <span class="tag pos">BONUS</span>
+        <b>Dadu angka 6</b>
+        <p>Melempar dadu dan mendapat angka 6 memberi giliran lempar tambahan untuk kelompok yang sama.</p>
+      </div>
+      <div class="rule-card">
+        <span class="tag tangga">FINIS</span>
+        <b>Mencapai petak 100</b>
+        <p>Kelompok yang tiba tepat di petak 100 langsung dicatat peringkat finisnya, tetapi permainan <b>terus berlanjut</b> untuk kelompok lain sampai semua kelompok mencapai petak 100. Jika lemparan dadu melebihi 100, bidak tidak bergerak dan giliran berpindah.</p>
+      </div>
+      <div class="rule-card">
+        <span class="tag ular">BERGANTIAN</span>
+        <b>Giliran bermain</b>
+        <p>Setiap kelompok bermain bergantian sesuai urutan. Diskusikan jawaban kartu bersama anggota kelompok sebelum memilih.</p>
+      </div>
+    </div>
+  </details>
+
+  <!-- ================= SETUP SCREEN ================= -->
+  <section id="setup">
+    <h2>Siapkan kelompok</h2>
+    <p class="hint">Pilih jumlah kelompok, lalu beri nama tiap kelompok. Satu papan dipakai bersama secara bergantian.</p>
+    <div class="team-count" id="teamCount"></div>
+    <div class="team-inputs" id="teamInputs"></div>
+    <button id="startBtn">🎲 Mulai Permainan</button>
+  </section>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <section id="game">
+    <div class="board-col">
+      <div class="board-wrap" id="boardWrap">
+        <div class="board-grid" id="boardGrid"></div>
+        <svg class="overlay" id="overlaySvg"></svg>
+        <div class="tokens-layer" id="tokensLayer"></div>
+      </div>
+    </div>
+    <div class="side-col">
+      <div class="panel">
+        <h3>Giliran sekarang</h3>
+        <div class="turn-chip"><div class="turn-dot" id="turnDot"></div><b id="turnName">-</b></div>
+        <div class="dice-zone">
+          <div class="die" id="die">–</div>
+          <button id="rollBtn">🎲 Lempar Dadu</button>
+          <div class="roll-note" id="rollNote"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Papan skor</h3>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="panel">
+        <h3>Keterangan petak</h3>
+        <div class="legend-item"><span class="ic">⬆️</span> Kaki tangga — jawab Kartu Tangga Tekanan</div>
+        <div class="legend-item"><span class="ic">🐍</span> Kepala ular — jawab Kartu Ular Tekanan</div>
+        <div class="legend-item"><span class="ic">🎴</span> Pos Kejutan — kuis atau tantangan Jelaskan!/Percobaan/Studi Kasus</div>
+      </div>
+      <div class="panel">
+        <h3>Catatan permainan</h3>
+        <div id="log"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Card modal -->
+<div class="modal-backdrop" id="cardBackdrop">
+  <div class="card-modal" id="cardModal">
+    <span class="card-cat" id="cardCat">KARTU</span>
+    <h4 id="cardQuestion">Pertanyaan</h4>
+    <div class="options" id="cardOptions"></div>
+    <div class="feedback" id="cardFeedback"></div>
+    <button id="continueBtn">Lanjutkan</button>
+  </div>
+</div>
+
+<!-- Winner modal -->
+<div class="modal-backdrop" id="winBackdrop">
+  <div class="card-modal win-modal">
+    <div class="emoji">🏆</div>
+    <h3 id="winTitle">Permainan Selesai!</h3>
+    <p>Semua kelompok telah mencapai garis finish. Berikut peringkat akhirnya:</p>
+    <div id="finalRankings" style="text-align:left;margin-bottom:18px;"></div>
+    <button id="playAgainBtn">Main Lagi</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA: papan, tangga, ular, pos kejutan, bank soal
+   ============================================================ */
+const LADDERS = {4:25, 13:46, 33:49, 42:63, 52:72, 71:92, 80:99};
+const SNAKES  = {97:78, 95:56, 88:67, 62:19, 54:34, 44:22, 27:5};
+const CHECKPOINTS = [8,18,30,40,58,66,76,85];
+
+const QUESTIONS = [
+// --- Tekanan Zat Padat ---
+{q:"Rumus tekanan pada zat padat dinyatakan sebagai...", o:["P = F × A","P = F / A","P = A / F","P = m × g"], c:1, e:"Tekanan (P) adalah gaya tekan (F) dibagi luas bidang tekan (A): P = F/A."},
+{q:"Satuan tekanan dalam Sistem Internasional (SI) adalah...", o:["Newton","Joule","Pascal","Watt"], c:2, e:"Satuan SI untuk tekanan adalah Pascal (Pa), setara dengan N/m²."},
+{q:"1 Pascal (Pa) setara dengan...", o:["1 N/m²","1 N/m","1 kg/m³","1 N·m"], c:0, e:"1 Pa = 1 N/m², karena tekanan = gaya per satuan luas."},
+{q:"Mengapa ujung pisau dan paku dibuat runcing?", o:["Agar luas bidang tekan kecil sehingga tekanan makin besar","Agar luas bidang tekan besar sehingga tekanan kecil","Agar beratnya berkurang","Agar gaya yang dihasilkan berkurang"], c:0, e:"Luas bidang yang kecil membuat tekanan menjadi sangat besar meski gayanya sama, sehingga mudah menembus benda."},
+{q:"Sepatu salju dan sepatu pasir dibuat lebar dengan tujuan...", o:["Memperbesar luas alas agar tekanan pada permukaan mengecil","Memperkecil luas alas agar tekanan membesar","Menambah gaya berat pemakainya","Mengurangi gesekan dengan lantai"], c:0, e:"Luas alas yang besar membuat tekanan pada tanah menjadi kecil sehingga tidak mudah amblas."},
+{q:"Jika gaya tekan tetap sementara luas bidang tekan diperbesar, maka tekanan yang dihasilkan akan...", o:["Semakin besar","Semakin kecil","Tetap sama","Berubah menjadi nol"], c:1, e:"Karena tekanan berbanding terbalik dengan luas bidang (P = F/A), memperbesar luas membuat tekanan mengecil."},
+{q:"Sebuah balok memberikan gaya tekan 50 N pada luas bidang 2 m². Besar tekanannya adalah...", o:["100 Pa","25 Pa","52 Pa","48 Pa"], c:1, e:"P = F/A = 50 N ÷ 2 m² = 25 Pa."},
+{q:"Sebuah benda memberikan gaya 80 N pada luas alas 4 m². Tekanan yang dihasilkan adalah...", o:["20 Pa","320 Pa","84 Pa","76 Pa"], c:0, e:"P = F/A = 80 N ÷ 4 m² = 20 Pa."},
+{q:"Sebuah benda memberikan gaya 100 N pada luas alas 5 m². Tekanan yang dihasilkan adalah...", o:["500 Pa","20 Pa","105 Pa","95 Pa"], c:1, e:"P = F/A = 100 N ÷ 5 m² = 20 Pa."},
+
+// --- Tekanan Hidrostatis ---
+{q:"Rumus tekanan hidrostatis pada zat cair adalah...", o:["P = ρ × g × h","P = m × g","P = F × A","P = V / t"], c:0, e:"Tekanan hidrostatis dipengaruhi massa jenis zat cair (ρ), percepatan gravitasi (g), dan kedalaman (h)."},
+{q:"Faktor utama yang menentukan besar tekanan hidrostatis pada suatu titik dalam zat cair adalah...", o:["Bentuk wadah zat cair","Kedalaman titik dari permukaan zat cair","Warna zat cair","Jenis wadah yang digunakan"], c:1, e:"Semakin dalam suatu titik dari permukaan zat cair, semakin besar tekanan hidrostatisnya."},
+{q:"Semakin dalam seorang penyelam menyelam ke laut, tekanan yang dialaminya akan...", o:["Semakin kecil","Tetap sama","Semakin besar","Hilang sama sekali"], c:2, e:"Tekanan hidrostatis bertambah seiring bertambahnya kedalaman."},
+{q:"Tekanan hidrostatis pada suatu titik TIDAK dipengaruhi oleh...", o:["Bentuk wadah zat cair","Massa jenis zat cair","Kedalaman titik dari permukaan","Percepatan gravitasi"], c:0, e:"Tekanan hidrostatis hanya bergantung pada massa jenis zat cair, gravitasi, dan kedalaman — bukan bentuk wadahnya."},
+{q:"Dua titik berada pada kedalaman yang sama di dalam zat cair yang sama namun wadahnya berbeda bentuk. Tekanan hidrostatis pada kedua titik tersebut adalah...", o:["Sama besar","Titik di wadah sempit lebih besar","Titik di wadah lebar lebih besar","Tidak dapat dibandingkan"], c:0, e:"Karena kedalaman dan jenis zat cair sama, tekanan hidrostatisnya sama meski bentuk wadah berbeda."},
+
+// --- Hukum Pascal ---
+{q:"Hukum Pascal menyatakan bahwa tekanan yang diberikan pada zat cair dalam ruang tertutup akan...", o:["Diteruskan sama besar ke segala arah","Hilang secara bertahap","Hanya diteruskan ke satu arah","Berkurang setengahnya"], c:0, e:"Menurut Hukum Pascal, tekanan pada zat cair dalam ruang tertutup diteruskan sama besar ke segala arah."},
+{q:"Alat berikut yang bekerja berdasarkan Hukum Pascal adalah...", o:["Termometer","Dongkrak hidrolik","Kompas","Neraca"], c:1, e:"Dongkrak hidrolik memanfaatkan tekanan zat cair yang diteruskan sama besar sesuai Hukum Pascal."},
+{q:"Sistem rem hidrolik pada mobil memanfaatkan prinsip...", o:["Hukum Archimedes","Hukum Boyle","Hukum Pascal","Hukum Newton III"], c:2, e:"Rem hidrolik meneruskan tekanan dari pedal ke seluruh roda melalui zat cair, sesuai Hukum Pascal."},
+{q:"Pada dongkrak hidrolik, gaya kecil yang diberikan pada pengisap kecil dapat mengangkat beban berat pada pengisap besar karena...", o:["Tekanan yang diteruskan sama besar, sedangkan gaya bergantung pada luas penampang","Zat cair menjadi lebih ringan saat ditekan","Gaya gravitasi berkurang di dalam sistem hidrolik","Pengisap kecil menghasilkan tekanan yang lebih kecil"], c:0, e:"Karena tekanan diteruskan sama besar (Hukum Pascal), gaya pada penampang yang lebih luas menjadi lebih besar."},
+
+// --- Hukum Archimedes ---
+{q:"Hukum Archimedes menyatakan bahwa benda yang dicelupkan ke dalam zat cair akan mengalami gaya apung sebesar...", o:["Berat benda di udara","Berat zat cair yang dipindahkan oleh benda","Dua kali berat benda","Massa jenis zat cair saja"], c:1, e:"Gaya apung (gaya Archimedes) sama besar dengan berat zat cair yang dipindahkan oleh benda."},
+{q:"Sebuah benda akan terapung dalam zat cair jika...", o:["Massa jenis benda lebih besar dari massa jenis zat cair","Massa jenis benda sama dengan massa jenis zat cair","Massa jenis benda lebih kecil dari massa jenis zat cair","Berat benda sama dengan nol"], c:2, e:"Benda terapung ketika massa jenisnya lebih kecil daripada massa jenis zat cair."},
+{q:"Sebuah benda akan melayang dalam zat cair jika...", o:["Massa jenis benda sama dengan massa jenis zat cair","Massa jenis benda lebih besar dari zat cair","Massa jenis benda lebih kecil dari zat cair","Benda tidak memiliki massa jenis"], c:0, e:"Benda melayang ketika massa jenis benda persis sama dengan massa jenis zat cair."},
+{q:"Sebuah benda akan tenggelam dalam zat cair jika...", o:["Massa jenis benda lebih kecil dari zat cair","Massa jenis benda sama dengan zat cair","Massa jenis benda lebih besar dari zat cair","Benda berbentuk pipih"], c:2, e:"Benda tenggelam ketika massa jenisnya lebih besar daripada massa jenis zat cair."},
+{q:"Kapal laut dari baja dapat terapung di air karena...", o:["Baja lebih ringan dari air","Bentuknya berongga sehingga massa jenis rata-ratanya lebih kecil dari air","Kapal tidak memiliki berat","Air laut tidak memiliki massa jenis"], c:1, e:"Rongga pada badan kapal membuat volume air yang dipindahkan besar, sehingga massa jenis rata-rata kapal lebih kecil dari air."},
+{q:"Kapal selam dapat menyelam dan mengapung dengan cara...", o:["Mengubah bentuk lambung kapal","Mengatur jumlah air dalam tangki pemberat (ballast)","Menambah kecepatan mesin","Mengganti jenis bahan bakar"], c:1, e:"Mengisi tangki ballast dengan air membuat kapal selam tenggelam; mengeluarkannya membuat kapal selam naik."},
+{q:"Telur yang tenggelam di air tawar dapat mengapung setelah air ditambahkan banyak garam. Hal ini terjadi karena...", o:["Massa jenis air garam menjadi lebih besar daripada massa jenis telur","Massa jenis telur berubah menjadi lebih kecil dari air garam","Garam menghilangkan berat telur","Air garam kehilangan gaya apung"], c:0, e:"Penambahan garam memperbesar massa jenis air, sehingga menjadi lebih besar dari massa jenis telur dan telur pun terapung."},
+];
+
+const DISCUSSION_PROMPTS = [
+  {tag:"PERCOBAAN KILAT", q:"Tekan ujung pensil yang runcing dan ujung yang tumpul ke telapak tangan kalian bergantian dengan gaya yang kira-kira sama. Diskusikan bersama kelompok: bagian mana yang terasa lebih menekan, dan mengapa hal itu bisa terjadi ditinjau dari luas bidang tekan?", tip:"Ujung yang runcing memiliki luas bidang tekan yang jauh lebih kecil, sehingga tekanannya (P=F/A) jauh lebih besar walaupun gayanya sama."},
+  {tag:"JELASKAN!", q:"Seorang penyelam yang menyelam semakin dalam ke laut merasakan tekanan pada telinganya semakin kuat. Jelaskan pada teman satu kelompok mengapa hal ini terjadi, dan sebutkan rumus yang berkaitan!", tip:"Tekanan hidrostatis P = ρ·g·h bertambah besar seiring bertambahnya kedalaman (h), sehingga tekanan pada tubuh penyelam ikut bertambah."},
+  {tag:"STUDI KASUS", q:"Sebuah kapal selam sedang berada di dasar laut dan ingin naik ke permukaan. Jelaskan apa yang harus dilakukan pada tangki pemberat (ballast) kapal selam tersebut, dan kaitkan dengan Hukum Archimedes!", tip:"Air dalam tangki ballast dikeluarkan/diganti udara sehingga massa jenis rata-rata kapal selam mengecil, gaya apung menjadi lebih besar dari berat kapal, dan kapal pun naik."},
+  {tag:"PERCOBAAN KILAT", q:"Coba remas ujung sedotan atau selang kecil berisi air sambil menutup salah satu ujungnya dengan jari. Rasakan pada jari yang menutup ujung lain. Jelaskan fenomena ini menggunakan Hukum Pascal!", tip:"Tekanan yang diberikan pada zat cair dalam ruang tertutup diteruskan sama besar ke segala arah, sehingga jari yang menutup ujung lain juga merasakan tekanan."},
+  {tag:"JELASKAN!", q:"Mengapa dongkrak hidrolik yang digunakan di bengkel mobil bisa mengangkat mobil yang sangat berat hanya dengan gaya tangan manusia? Jelaskan dengan Hukum Pascal!", tip:"Gaya kecil pada pengisap kecil menghasilkan tekanan yang diteruskan sama besar ke pengisap besar; karena luas penampangnya lebih besar, gaya yang dihasilkan di sana ikut menjadi besar (F=P×A)."},
+  {tag:"STUDI KASUS", q:"Sebutir telur tenggelam di air tawar biasa, tetapi mengapung setelah air ditambah garam dalam jumlah banyak. Jelaskan mengapa hal ini bisa terjadi dikaitkan dengan Hukum Archimedes!", tip:"Menambahkan garam memperbesar massa jenis air. Ketika massa jenis air garam melebihi massa jenis telur, gaya apung menjadi cukup besar sehingga telur terapung."},
+  {tag:"PERCOBAAN KILAT", q:"Bandingkan rasanya berjalan di atas pasir memakai sepatu biasa dengan membayangkan memakai sepatu yang sangat lebar (seperti sepatu salju). Diskusikan mengapa sepatu lebar membuat kaki tidak mudah amblas!", tip:"Luas alas yang lebih besar membuat tekanan pada permukaan pasir menjadi lebih kecil (P=F/A), sehingga kaki tidak mudah amblas."},
+  {tag:"JELASKAN!", q:"Dua wadah berbeda bentuk (satu ramping, satu lebar) diisi air dengan kedalaman yang sama. Menurut kelompok kalian, apakah tekanan hidrostatis di dasar kedua wadah tersebut sama atau berbeda? Jelaskan alasannya!", tip:"Tekanan hidrostatis hanya bergantung pada massa jenis zat cair, gravitasi, dan kedalaman — bukan bentuk atau lebar wadah. Jadi tekanannya sama meski bentuk wadah berbeda."},
+  {tag:"STUDI KASUS", q:"Sebuah kapal besar dari baja bisa mengapung, padahal baja lebih padat daripada air. Jelaskan bagaimana hal ini bisa terjadi dikaitkan dengan bentuk kapal dan Hukum Archimedes!", tip:"Bentuk kapal yang berongga membuat volume air yang dipindahkan sangat besar, sehingga massa jenis rata-rata kapal (termasuk rongga udaranya) menjadi lebih kecil daripada massa jenis air."},
+  {tag:"PERCOBAAN KILAT", q:"Bayangkan kalian menekan spons dengan telapak tangan (luas tekan besar) lalu menekannya lagi hanya dengan satu jari (luas tekan kecil) dengan gaya yang sama. Diskusikan mana yang membuat spons lebih cepat kempis dan mengapa!", tip:"Menekan dengan satu jari memperkecil luas bidang tekan sehingga tekanan yang dihasilkan jauh lebih besar walau gayanya sama, membuat spons lebih cepat kempis di titik itu."},
+  {tag:"JELASKAN!", q:"Rem hidrolik pada mobil hanya membutuhkan tekanan kaki yang ringan di pedal untuk menghentikan mobil yang berat dan melaju kencang. Jelaskan mengapa prinsip ini bisa bekerja!", tip:"Prinsip Pascal membuat tekanan yang diberikan pada minyak rem diteruskan sama besar ke seluruh piston rem di setiap roda, menghasilkan gaya pengereman yang jauh lebih besar dari gaya kaki."},
+  {tag:"STUDI KASUS", q:"Mengapa balon udara yang dipenuhi udara panas bisa naik dan bergerak menembus lapisan udara, sedangkan benda pejal seberat itu bisa 'melayang'? Diskusikan dikaitkan dengan konsep gaya apung (Archimedes) pada fluida (udara)!", tip:"Udara panas di dalam balon memiliki massa jenis lebih kecil daripada udara sekitar yang lebih dingin, sehingga balon secara keseluruhan memiliki massa jenis rata-rata lebih kecil dari udara di sekitarnya dan mengalami gaya apung ke atas."},
+];
+
+const TEAM_PALETTE = ["#1fae9c","#e8a24a","#e0505f","#5c8bd0","#b07cc6","#7fbf5f","#e07bb0","#4fb8c9","#c9863f","#8f9c4f"];
+const TEAM_CHARACTERS = ["🦁","🐯","🐸","🐵","🦊","🐼","🐨","🐰","🐹","🦉"];
+
+let deck = [];
+function drawCard(){
+  if(deck.length===0){ deck = shuffle([...QUESTIONS]); }
+  return deck.pop();
+}
+let discDeck = [];
+function drawDiscussionCard(){
+  if(discDeck.length===0){ discDeck = shuffle([...DISCUSSION_PROMPTS]); }
+  return discDeck.pop();
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* ============================================================
+   BOARD NUMBERING (boustrophedon, 100 at top)
+   ============================================================ */
+function getTileNumber(rowFromTop, col){
+  const rowFromBottom = 9 - rowFromTop;
+  const base = rowFromBottom*10;
+  if(rowFromBottom % 2 === 0){ return base + col + 1; }
+  return base + (10 - col);
+}
+
+let teams = [];
+let currentIndex = 0;
+let finishedCount = 0;
+let tileCenters = {};
+
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+let teamCountSel = 3;
+const teamCountWrap = document.getElementById('teamCount');
+const teamInputsWrap = document.getElementById('teamInputs');
+
+function renderTeamCountButtons(){
+  teamCountWrap.innerHTML='';
+  for(let n=2;n<=10;n++){
+    const b=document.createElement('button');
+    b.textContent=n;
+    if(n===teamCountSel) b.classList.add('active');
+    b.onclick=()=>{teamCountSel=n; renderTeamCountButtons(); renderTeamInputs();};
+    teamCountWrap.appendChild(b);
+  }
+}
+function renderTeamInputs(){
+  teamInputsWrap.innerHTML='';
+  for(let i=0;i<teamCountSel;i++){
+    const row=document.createElement('div');
+    row.className='team-row';
+    const sw=document.createElement('div');
+    sw.className='swatch';
+    sw.style.background=TEAM_PALETTE[i%TEAM_PALETTE.length];
+    sw.textContent=TEAM_CHARACTERS[i%TEAM_CHARACTERS.length];
+    const inp=document.createElement('input');
+    inp.type='text';
+    inp.placeholder=`Nama Kelompok ${i+1}`;
+    inp.value=`Kelompok ${i+1}`;
+    inp.id=`teamname_${i}`;
+    row.appendChild(sw);
+    row.appendChild(inp);
+    teamInputsWrap.appendChild(row);
+  }
+}
+renderTeamCountButtons();
+renderTeamInputs();
+
+document.getElementById('startBtn').onclick = ()=>{
+  teams = [];
+  for(let i=0;i<teamCountSel;i++){
+    const val = document.getElementById(`teamname_${i}`).value.trim() || `Kelompok ${i+1}`;
+    teams.push({name:val, color:TEAM_PALETTE[i%TEAM_PALETTE.length], emoji:TEAM_CHARACTERS[i%TEAM_CHARACTERS.length], pos:0, correct:0, wrong:0, finished:false, rank:null});
+  }
+  currentIndex = 0;
+  finishedCount = 0;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='flex';
+  buildBoard();
+  renderTokens();
+  updateLeaderboard();
+  updateTurnUI();
+  window.addEventListener('resize', debounce(()=>{computeTileCenters(); drawConnections(); renderTokens();},150));
+};
+
+function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+
+/* ============================================================
+   BUILD BOARD
+   ============================================================ */
+function buildBoard(){
+  const grid = document.getElementById('boardGrid');
+  grid.innerHTML='';
+  for(let r=0;r<10;r++){
+    for(let c=0;c<10;c++){
+      const num = getTileNumber(r,c);
+      const cell = document.createElement('div');
+      cell.className='cell';
+      cell.id = 'cell-'+num;
+      let icon = '';
+      if(LADDERS[num] !== undefined){ cell.classList.add('ladder-bottom'); icon='⬆️'; }
+      if(SNAKES[num] !== undefined){ cell.classList.add('snake-head'); icon='🐍'; }
+      if(CHECKPOINTS.includes(num)){ cell.classList.add('checkpoint'); icon='🎴'; }
+      if(num===100){ cell.classList.add('tile-100'); icon='🏁'; }
+      cell.innerHTML = `<span class="num">${num}</span>${icon?`<span class="icon">${icon}</span>`:''}`;
+      grid.appendChild(cell);
+    }
+  }
+  requestAnimationFrame(()=>{ computeTileCenters(); drawConnections(); });
+}
+
+function computeTileCenters(){
+  const wrapRect = document.getElementById('boardWrap').getBoundingClientRect();
+  tileCenters = {};
+  for(let n=1;n<=100;n++){
+    const el = document.getElementById('cell-'+n);
+    if(!el) continue;
+    const r = el.getBoundingClientRect();
+    tileCenters[n] = {
+      x: r.left - wrapRect.left + r.width/2,
+      y: r.top - wrapRect.top + r.height/2
+    };
+  }
+}
+
+function catmullRomPath(pts){
+  if(pts.length<2) return '';
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} `;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+    const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+    const c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+    d+=`C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)} `;
+  }
+  return d;
+}
+function buildSnakePoints(p1,p2,segments,ampRatio,dir){
+  const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len, ny=dx/len;
+  const pts=[{x:p1.x,y:p1.y}];
+  for(let i=1;i<segments;i++){
+    const t=i/segments;
+    const bx=p1.x+dx*t, by=p1.y+dy*t;
+    const amp = Math.sin(t*Math.PI) * len*ampRatio * dir * (i%2===0?1:-1);
+    pts.push({x:bx+nx*amp, y:by+ny*amp});
+  }
+  pts.push({x:p2.x,y:p2.y});
+  return pts;
+}
+function sampleAlong(pts, t){
+  const segCount = pts.length-1;
+  const scaled = t*segCount;
+  let idx = Math.floor(scaled);
+  if(idx>=segCount) idx=segCount-1;
+  const localT = scaled-idx;
+  const a=pts[idx], b=pts[idx+1];
+  const x=a.x+(b.x-a.x)*localT, y=a.y+(b.y-a.y)*localT;
+  const angle = Math.atan2(b.y-a.y, b.x-a.x)*180/Math.PI;
+  return {x,y,angle};
+}
+const SNAKE_PALETTES = [
+  {light:'#93d69a', mid:'#3f8f4f', dark:'#1f4a26', blotch:'#123018'},
+  {light:'#e9cd93', mid:'#b98a3d', dark:'#6b4a1c', blotch:'#4a3012'},
+  {light:'#f2b077', mid:'#c96a2e', dark:'#7a3a12', blotch:'#552808'},
+  {light:'#cdd4c2', mid:'#7c8a6e', dark:'#3c4632', blotch:'#232b1a'},
+  {light:'#e09a9a', mid:'#a6413f', dark:'#5c1e1c', blotch:'#3a1210'},
+  {light:'#d3c584', mid:'#8f7a35', dark:'#4a3d16', blotch:'#2e260c'},
+  {light:'#a4d6e6', mid:'#3f7f96', dark:'#1c3f4c', blotch:'#122831'}
+];
+
+function drawConnections(){
+  const svg = document.getElementById('overlaySvg');
+  const wrapRect = document.getElementById('boardWrap').getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+  svg.innerHTML = '';
+
+  // Ladders: parallel rails + rungs
+  Object.entries(LADDERS).forEach(([bottom, top], idx)=>{
+    const p1 = tileCenters[bottom], p2 = tileCenters[top];
+    if(!p1||!p2) return;
+    const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
+    const nx=-dy/len, ny=dx/len, r=6;
+    const rail1a={x:p1.x+nx*r,y:p1.y+ny*r}, rail1b={x:p2.x+nx*r,y:p2.y+ny*r};
+    const rail2a={x:p1.x-nx*r,y:p1.y-ny*r}, rail2b={x:p2.x-nx*r,y:p2.y-ny*r};
+    let html = `<line x1="${rail1a.x}" y1="${rail1a.y}" x2="${rail1b.x}" y2="${rail1b.y}" stroke="#e8a24a" stroke-width="3.5" stroke-linecap="round"/>`;
+    html += `<line x1="${rail2a.x}" y1="${rail2a.y}" x2="${rail2b.x}" y2="${rail2b.y}" stroke="#e8a24a" stroke-width="3.5" stroke-linecap="round"/>`;
+    const steps=6;
+    for(let s=1;s<steps;s++){
+      const t=s/steps;
+      const a={x:rail1a.x+(rail1b.x-rail1a.x)*t, y:rail1a.y+(rail1b.y-rail1a.y)*t};
+      const b={x:rail2a.x+(rail2b.x-rail2a.x)*t, y:rail2a.y+(rail2b.y-rail2a.y)*t};
+      html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#c17f2b" stroke-width="2.5"/>`;
+    }
+    svg.innerHTML += html;
+  });
+
+  // Snakes: realistic wavy body with shading, blotch pattern, head (eyes + forked tongue) and tapered tail
+  Object.entries(SNAKES).forEach(([head, tail], idx)=>{
+    const p1 = tileCenters[head], p2 = tileCenters[tail];
+    if(!p1||!p2) return;
+    const dirSign = idx%2===0? 1 : -1;
+    const pts = buildSnakePoints(p1, p2, 4, 0.20, dirSign);
+    const d = catmullRomPath(pts);
+    const palette = SNAKE_PALETTES[idx % SNAKE_PALETTES.length];
+    const gradId = `snakeGrad${idx}`;
+
+    let html = `<defs>
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${palette.light}"/>
+        <stop offset="0.5" stop-color="${palette.mid}"/>
+        <stop offset="1" stop-color="${palette.dark}"/>
+      </linearGradient>
+    </defs>`;
+
+    // soft ground shadow
+    html += `<path d="${d}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" transform="translate(1.5,2.5)"/>`;
+    // main body (cylindrical shading via gradient)
+    html += `<path d="${d}" fill="none" stroke="url(#${gradId})" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // belly highlight running along the spine
+    html += `<path d="${d}" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // dorsal blotch pattern (like a python/boa) sampled along the body
+    for(let b=1;b<7;b++){
+      const t=b/7;
+      const s=sampleAlong(pts,t);
+      html += `<ellipse cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" rx="6.2" ry="4" fill="${palette.blotch}" opacity=".85" transform="rotate(${s.angle.toFixed(1)} ${s.x.toFixed(1)} ${s.y.toFixed(1)})"/>`;
+    }
+
+    // head: oriented facing outward from the body (away from the neck)
+    const headAngle = Math.atan2(pts[0].y-pts[1].y, pts[0].x-pts[1].x)*180/Math.PI;
+    html += `<g transform="translate(${p1.x.toFixed(1)},${p1.y.toFixed(1)}) rotate(${headAngle.toFixed(1)})">`;
+    html += `<ellipse cx="4" cy="0" rx="10.5" ry="7.5" fill="url(#${gradId})" stroke="rgba(0,0,0,.35)" stroke-width="1"/>`;
+    html += `<circle cx="6.5" cy="-3.6" r="2.1" fill="#fff"/><ellipse cx="7.1" cy="-3.6" rx="0.8" ry="1.6" fill="#181008"/>`;
+    html += `<circle cx="6.5" cy="3.6" r="2.1" fill="#fff"/><ellipse cx="7.1" cy="3.6" rx="0.8" ry="1.6" fill="#181008"/>`;
+    html += `<circle cx="13.5" cy="-1.6" r="0.6" fill="rgba(0,0,0,.45)"/><circle cx="13.5" cy="1.6" r="0.6" fill="rgba(0,0,0,.45)"/>`;
+    html += `<path d="M 14.5 0 L 21 0 M 21 0 L 24 -2.3 M 21 0 L 24 2.3" stroke="#c8324a" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+    html += `</g>`;
+
+    // tail: tapered point
+    const tailAngle = Math.atan2(pts[pts.length-1].y-pts[pts.length-2].y, pts[pts.length-1].x-pts[pts.length-2].x)*180/Math.PI;
+    html += `<g transform="translate(${p2.x.toFixed(1)},${p2.y.toFixed(1)}) rotate(${tailAngle.toFixed(1)})"><path d="M -1 -3.5 Q 7 0 -1 3.5 Z" fill="${palette.dark}"/></g>`;
+
+    svg.innerHTML += html;
+  });
+}
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+function renderTokens(){
+  const layer = document.getElementById('tokensLayer');
+  layer.innerHTML='';
+  const groups = {};
+  teams.forEach((t,i)=>{ const key=t.pos||'start'; groups[key]=groups[key]||[]; groups[key].push(i); });
+
+  teams.forEach((t,i)=>{
+    const el = document.createElement('div');
+    el.className='token';
+    el.textContent = t.emoji || '⭐';
+    el.title = t.name;
+    let x,y;
+    if(t.pos===0){
+      const wrapRect = document.getElementById('boardWrap').getBoundingClientRect();
+      x = 4 + i*3; y = 96 - i*0; // percentage fallback, handled below
+      el.style.left = (2+i*8)+'%';
+      el.style.top = '101%';
+      el.style.opacity='0';
+      layer.appendChild(el);
+      return;
+    } else {
+      const c = tileCenters[t.pos];
+      if(!c){ layer.appendChild(el); return; }
+      const sameGroup = groups[t.pos];
+      const idxInGroup = sameGroup.indexOf(i);
+      const n = sameGroup.length;
+      const angle = (idxInGroup/n) * Math.PI*2;
+      const spread = n>1? 9:0;
+      x = c.x + Math.cos(angle)*spread;
+      y = c.y + Math.sin(angle)*spread;
+    }
+    const wrapRect = document.getElementById('boardWrap').getBoundingClientRect();
+    el.style.left = (x/wrapRect.width*100)+'%';
+    el.style.top = (y/wrapRect.height*100)+'%';
+    layer.appendChild(el);
+  });
+}
+
+/* ============================================================
+   TURN / DICE / MOVEMENT
+   ============================================================ */
+function updateTurnUI(){
+  const t = teams[currentIndex];
+  document.getElementById('turnDot').style.background = t.color;
+  document.getElementById('turnName').textContent = `${t.emoji} ${t.name}`;
+  document.getElementById('rollBtn').disabled = false;
+  updateLeaderboard();
+}
+
+function updateLeaderboard(){
+  const wrap = document.getElementById('leaderboard');
+  const sorted = [...teams].sort((a,b)=>{
+    if(a.finished && b.finished) return a.rank - b.rank;
+    if(a.finished) return -1;
+    if(b.finished) return 1;
+    return b.pos - a.pos;
+  });
+  wrap.innerHTML = sorted.map(t=>`
+    <div class="leader-row">
+      <div class="dot" style="background:${t.color}"></div>
+      <div class="name">${t.emoji} ${t.name}</div>
+      <div class="pos">${t.finished? '🏁 #'+t.rank : t.pos+'/100'}</div>
+      <div class="stat">✔${t.correct} ✘${t.wrong}</div>
+    </div>`).join('');
+}
+
+function log(msg){
+  const el = document.getElementById('log');
+  const div = document.createElement('div');
+  div.textContent = msg;
+  el.appendChild(div);
+}
+
+const dieEl = document.getElementById('die');
+const rollBtn = document.getElementById('rollBtn');
+const rollNote = document.getElementById('rollNote');
+
+rollBtn.onclick = ()=>{
+  rollBtn.disabled = true;
+  dieEl.classList.add('rolling');
+  rollNote.textContent='';
+  let ticks=0;
+  const iv = setInterval(()=>{
+    dieEl.textContent = 1+Math.floor(Math.random()*6);
+    ticks++;
+    if(ticks>10){
+      clearInterval(iv);
+      dieEl.classList.remove('rolling');
+      const roll = 1+Math.floor(Math.random()*6);
+      dieEl.textContent = roll;
+      handleRoll(roll);
+    }
+  },70);
+};
+
+function handleRoll(roll){
+  const team = teams[currentIndex];
+  const newPos = team.pos + roll;
+  log(`${team.name} melempar dadu: ${roll}`);
+
+  if(newPos > 100){
+    rollNote.textContent = `Butuh angka pas untuk mencapai petak 100. Bidak tetap di petak ${team.pos}.`;
+    log(`${team.name} melebihi petak 100, bidak tidak bergerak.`);
+    endTurn(roll===6);
+    return;
+  }
+
+  team.pos = newPos;
+  renderTokens();
+  updateLeaderboard();
+
+  setTimeout(()=> resolveTile(team, roll), 550);
+}
+
+function resolveTile(team, roll){
+  const pos = team.pos;
+  if(LADDERS[pos] !== undefined){
+    openCard('tangga', pos, (correct)=>{
+      if(correct){
+        log(`${team.name} menjawab benar! Naik tangga dari ${pos} ke ${LADDERS[pos]}.`);
+        team.pos = LADDERS[pos];
+        team.correct++;
+      } else {
+        log(`${team.name} menjawab salah. Tetap di petak ${pos}.`);
+        team.wrong++;
+      }
+      renderTokens(); updateLeaderboard();
+      afterCard(team, roll);
+    });
+  } else if(SNAKES[pos] !== undefined){
+    openCard('ular', pos, (correct)=>{
+      if(correct){
+        log(`${team.name} menjawab benar! Selamat dari ular di petak ${pos}.`);
+        team.correct++;
+      } else {
+        log(`${team.name} menjawab salah. Meluncur turun dari ${pos} ke ${SNAKES[pos]}.`);
+        team.pos = SNAKES[pos];
+        team.wrong++;
+      }
+      renderTokens(); updateLeaderboard();
+      afterCard(team, roll);
+    });
+  } else if(CHECKPOINTS.includes(pos)){
+    const cardType = Math.random() < 0.5 ? 'posKuis' : 'posDiskusi';
+    openCard(cardType, pos, (correct)=>{
+      if(correct){
+        const target = Math.min(100, team.pos+3);
+        log(`${team.name} menjawab benar! Bonus maju ke petak ${target}.`);
+        team.pos = target;
+        team.correct++;
+      } else {
+        const target = Math.max(1, team.pos-2);
+        log(`${team.name} menjawab salah. Mundur ke petak ${target}.`);
+        team.pos = target;
+        team.wrong++;
+      }
+      renderTokens(); updateLeaderboard();
+      afterCard(team, roll);
+    });
+  } else {
+    afterCard(team, roll);
+  }
+}
+
+function afterCard(team, roll){
+  if(team.pos === 100 && !team.finished){
+    team.finished = true;
+    finishedCount++;
+    team.rank = finishedCount;
+    log(`🏁 ${team.emoji} ${team.name} mencapai garis finish! Peringkat ke-${team.rank}.`);
+    renderTokens(); updateLeaderboard();
+    if(finishedCount >= teams.length){
+      setTimeout(()=> showFinalResults(), 500);
+      return;
+    }
+    showToast(`🏆 ${team.emoji} ${team.name} finis di peringkat ke-${team.rank}! Permainan lanjut untuk kelompok lain.`);
+    endTurn(false);
+    return;
+  }
+  endTurn(roll===6);
+}
+
+function endTurn(extraTurn){
+  if(extraTurn){
+    rollNote.textContent = `Dadu 6! ${teams[currentIndex].name} melempar lagi.`;
+    log(`${teams[currentIndex].name} mendapat giliran tambahan (dadu 6).`);
+  } else {
+    advanceToNextUnfinished();
+    rollNote.textContent='';
+  }
+  updateTurnUI();
+}
+
+function advanceToNextUnfinished(){
+  let attempts=0;
+  do{
+    currentIndex = (currentIndex+1) % teams.length;
+    attempts++;
+  } while(teams[currentIndex].finished && attempts<=teams.length);
+}
+
+/* ============================================================
+   CARD MODAL
+   ============================================================ */
+const cardBackdrop = document.getElementById('cardBackdrop');
+const cardModal = document.getElementById('cardModal');
+const cardCat = document.getElementById('cardCat');
+const cardQuestion = document.getElementById('cardQuestion');
+const cardOptions = document.getElementById('cardOptions');
+const cardFeedback = document.getElementById('cardFeedback');
+const continueBtn = document.getElementById('continueBtn');
+
+const CARD_META = {
+  tangga:     {label:'🎴 KARTU TANGGA TEKANAN', cls:'tangga'},
+  ular:       {label:'🎴 KARTU ULAR TEKANAN', cls:'ular'},
+  posKuis:    {label:'🎴 KARTU POS KEJUTAN · KUIS', cls:'pos'},
+  posDiskusi: {label:'🎴 KARTU POS KEJUTAN · JELASKAN!', cls:'pos'}
+};
+
+function openCard(type, tileNum, callback){
+  const meta = CARD_META[type];
+  cardModal.className = 'card-modal ' + meta.cls;
+  cardCat.className = 'card-cat ' + meta.cls;
+  cardCat.textContent = `${meta.label} · Petak ${tileNum}`;
+  cardOptions.innerHTML='';
+  cardFeedback.className='feedback';
+  cardFeedback.innerHTML='';
+  continueBtn.style.display='none';
+
+  if(type === 'posDiskusi'){
+    const card = drawDiscussionCard();
+    cardQuestion.innerHTML = `<span style="display:inline-block;font-family:'Space Mono';font-size:10.5px;letter-spacing:.5px;color:var(--teal-dark);background:rgba(31,174,156,.15);padding:3px 9px;border-radius:999px;margin-bottom:8px;">${card.tag}</span><br>${card.q}`;
+
+    const helper = document.createElement('p');
+    helper.style.cssText='font-size:12.5px;color:#4a5a6c;margin:0 0 14px;';
+    helper.textContent = 'Diskusikan dan jelaskan jawaban kelompok kalian secara lisan, lalu nilai sendiri hasilnya di bawah ini.';
+    cardOptions.appendChild(helper);
+
+    const successBtn=document.createElement('button');
+    successBtn.className='opt';
+    successBtn.textContent='✅ Kelompok kami berhasil menjelaskan';
+    const retryBtn=document.createElement('button');
+    retryBtn.className='opt';
+    retryBtn.textContent='🤔 Kami masih belum yakin / perlu belajar lagi';
+
+    const finish = (isCorrect)=>{
+      successBtn.disabled=true; retryBtn.disabled=true;
+      if(isCorrect) successBtn.classList.add('correct'); else retryBtn.classList.add('wrong');
+      cardFeedback.className='feedback show';
+      cardFeedback.innerHTML = `<b>💡 Konsep kuncinya:</b>${card.tip}`;
+      continueBtn.style.display='block';
+      continueBtn.onclick = ()=>{
+        cardBackdrop.classList.remove('show');
+        callback(isCorrect);
+      };
+    };
+    successBtn.onclick = ()=> finish(true);
+    retryBtn.onclick = ()=> finish(false);
+    cardOptions.appendChild(successBtn);
+    cardOptions.appendChild(retryBtn);
+
+    cardBackdrop.classList.add('show');
+    return;
+  }
+
+  const card = drawCard();
+  cardQuestion.textContent = card.q;
+
+  card.o.forEach((opt, i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.textContent = String.fromCharCode(65+i)+'. '+opt;
+    b.onclick = ()=>{
+      const isCorrect = (i===card.c);
+      [...cardOptions.children].forEach((btn, bi)=>{
+        btn.disabled=true;
+        if(bi===card.c) btn.classList.add('correct');
+        else if(bi===i) btn.classList.add('wrong');
+      });
+      cardFeedback.className='feedback show';
+      cardFeedback.innerHTML = `<b>${isCorrect? '✔ Benar!':'✘ Kurang tepat.'}</b>${card.e}`;
+      continueBtn.style.display='block';
+      continueBtn.onclick = ()=>{
+        cardBackdrop.classList.remove('show');
+        callback(isCorrect);
+      };
+    };
+    cardOptions.appendChild(b);
+  });
+
+  cardBackdrop.classList.add('show');
+}
+
+/* ============================================================
+   TOAST (interim finish notification)
+   ============================================================ */
+function showToast(msg){
+  const t=document.createElement('div');
+  t.className='toast';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=>t.remove(),400);
+  },3400);
+}
+
+/* ============================================================
+   FINAL RESULTS
+   ============================================================ */
+const winBackdrop = document.getElementById('winBackdrop');
+function showFinalResults(){
+  const sorted = [...teams].sort((a,b)=>a.rank-b.rank);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('finalRankings').innerHTML = sorted.map((t,i)=>`
+    <div class="leader-row">
+      <div class="dot" style="background:${t.color}"></div>
+      <div class="name">${medals[i]||('#'+(i+1))} ${t.emoji} ${t.name}</div>
+      <div class="stat">✔${t.correct} ✘${t.wrong}</div>
+    </div>`).join('');
+  winBackdrop.classList.add('show');
+}
+document.getElementById('playAgainBtn').onclick = ()=>{
+  winBackdrop.classList.remove('show');
+  document.getElementById('game').style.display='none';
+  document.getElementById('setup').style.display='block';
+  document.getElementById('log').innerHTML='';
+};
+</script>
+</body>
+</html>
